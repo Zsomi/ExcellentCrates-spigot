@@ -4,11 +4,7 @@ import com.google.gson.*;
 import su.nightexpress.excellentcrates.data.crate.UserCrateData;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class UserCrateDataSerializer implements JsonSerializer<UserCrateData>, JsonDeserializer<UserCrateData> {
 
@@ -21,17 +17,7 @@ public class UserCrateDataSerializer implements JsonSerializer<UserCrateData>, J
         int openings = object.get("openings").getAsInt();
         int milestones = object.get("milestones").getAsInt();
 
-        Set<String> blacklist = new HashSet<>();
-        if (object.has("blacklist") && object.get("blacklist").isJsonArray()) {
-            object.getAsJsonArray("blacklist").forEach(element -> blacklist.add(element.getAsString()));
-        }
-
-        Map<String, Integer> rewardWins = new HashMap<>();
-        if (object.has("rewardWins") && object.get("rewardWins").isJsonObject()) {
-            object.getAsJsonObject("rewardWins").entrySet().forEach(entry -> rewardWins.put(entry.getKey(), entry.getValue().getAsInt()));
-        }
-
-        return new UserCrateData(openCooldown, openingStreak, openings, milestones, blacklist, rewardWins);
+        return new UserCrateData(openCooldown, openingStreak, openings, milestones);
     }
 
     @Override
@@ -42,18 +28,6 @@ public class UserCrateDataSerializer implements JsonSerializer<UserCrateData>, J
         object.addProperty("openingStreak", data.getOpeningStreak());
         object.addProperty("openings", data.getOpenings());
         object.addProperty("milestones", data.getMilestone());
-
-        if (!data.getBlacklistedRewards().isEmpty()) {
-            JsonArray blacklist = new JsonArray();
-            data.getBlacklistedRewards().forEach(blacklist::add);
-            object.add("blacklist", blacklist);
-        }
-
-        if (!data.getRewardWins().isEmpty()) {
-            JsonObject rewardWins = new JsonObject();
-            data.getRewardWins().forEach(rewardWins::addProperty);
-            object.add("rewardWins", rewardWins);
-        }
 
         return object;
     }

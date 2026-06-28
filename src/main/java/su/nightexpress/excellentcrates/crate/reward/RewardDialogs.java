@@ -20,8 +20,4 @@ public class RewardDialogs {
     public static final DialogKey<Reward>                    WEIGHT      = new DialogKey<>("reward_weight");
     public static final DialogKey<Reward>                    PERMISSIONS = new DialogKey<>("reward_permissions");
     public static final DialogKey<Reward>                    LIMITS      = new DialogKey<>("reward_limits");
-
-    public static final DialogKey<ProgressionRef>            PROGRESSION_COUNT    = new DialogKey<>("reward_progression_count");
-    public static final DialogKey<ProgressionRef>            PROGRESSION_NAME     = new DialogKey<>("reward_progression_name");
-    public static final DialogKey<ProgressionRef>            PROGRESSION_COMMANDS = new DialogKey<>("reward_progression_commands");
 }

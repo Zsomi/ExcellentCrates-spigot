@@ -187,10 +187,6 @@ public class Lang implements LangContainer {
         GRAY.wrap("You can preview this crate again in " + SOFT_RED.wrap(GENERIC_TIME))
     );
 
-    public static final MessageLocale CRATE_BLACKLIST_ERROR_LAST = LangEntry.builder("Crate.Blacklist.Error.LastReward").chatMessage(
-        GRAY.wrap("You must keep at least " + SOFT_RED.wrap("one") + " reward enabled!")
-    );
-
     public static final MessageLocale ERROR_DATA_IS_LOADING = LangEntry.builder("Error.DataIsLoading").chatMessage(
         SOFT_RED.wrap("Data is still loading... Please try again later.")
     );
@@ -276,8 +272,6 @@ public class Lang implements LangContainer {
     public static final TextLocale EDITOR_TITLE_REWARD_LIST      = LangEntry.builder("Editor.Title.Reward.List").text(BLACK.wrap("Crate Rewards"));
     public static final TextLocale EDITOR_TITLE_REWARD_CONTENT   = LangEntry.builder("Editor.Title.Reward.Content").text(BLACK.wrap("Reward Items"));
     public static final TextLocale EDITOR_TITLE_REWARD_SETTINGS  = LangEntry.builder("Editor.Title.Reward.Settings").text(BLACK.wrap("Reward Settings"));
-    public static final TextLocale EDITOR_TITLE_REWARD_PROGRESSION         = LangEntry.builder("Editor.Title.Reward.Progression").text(BLACK.wrap("Progression Levels"));
-    public static final TextLocale EDITOR_TITLE_REWARD_PROGRESSION_CONTENT = LangEntry.builder("Editor.Title.Reward.ProgressionContent").text(BLACK.wrap("Level Content"));
     public static final TextLocale EDITOR_TITLE_KEY_LIST         = LangEntry.builder("Editor.Title.Keys").text(BLACK.wrap("Keys Editor"));
     public static final TextLocale EDITOR_TITLE_KEY_SETTINGS     = LangEntry.builder("Editor.Title.Key.Settings").text(BLACK.wrap("Key Settings"));
 

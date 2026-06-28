@@ -76,18 +76,6 @@ public class CrateOptionsMenu extends LinkedMenu<CratesPlugin, Crate> implements
         .appendClick("Click to change")
         .build();
 
-    private static final IconLocale LOCALE_BLACKLIST = LangEntry.iconBuilder("Editor.Button.Crate.Blacklist").name("Blacklist Menu")
-        .appendCurrent("Template", GENERIC_VALUE).br()
-        .appendInfo("GUI template players use to blacklist", "rewards they never want to receive.").br()
-        .appendClick("Click to change")
-        .build();
-
-    private static final IconLocale LOCALE_REWARD_LEVELS = LangEntry.iconBuilder("Editor.Button.Crate.RewardLevels").name("Reward Levels Menu")
-        .appendCurrent("Template", GENERIC_VALUE).br()
-        .appendInfo("GUI template players use to view", "reward progression levels.").br()
-        .appendClick("Click to change")
-        .build();
-
     private static final IconLocale LOCALE_OPENING_SET = LangEntry.iconBuilder("Editor.Button.Crate.Opening.Set").name("Opening Animation")
         .appendCurrent("Status", GENERIC_INSPECTION)
         .appendCurrent("Preview ID", GENERIC_VALUE).br()
@@ -243,22 +231,6 @@ public class CrateOptionsMenu extends LinkedMenu<CratesPlugin, Crate> implements
             )
             .toMenuItem().setSlots(13).setHandler((viewer1, event) -> {
                 this.dialogs.show(player, CrateDialogs.CRATE_PREVIEW, crate, flush);
-            }).build()
-        );
-
-        viewer.addItem(NightItem.fromType(Material.BARRIER)
-            .localized(LOCALE_BLACKLIST)
-            .replacement(replacer -> replacer.replace(GENERIC_VALUE, crate::getBlacklistId))
-            .toMenuItem().setSlots(17).setHandler((viewer1, event) -> {
-                this.dialogs.show(player, CrateDialogs.CRATE_BLACKLIST, crate, flush);
-            }).build()
-        );
-
-        viewer.addItem(NightItem.fromType(Material.EXPERIENCE_BOTTLE)
-            .localized(LOCALE_REWARD_LEVELS)
-            .replacement(replacer -> replacer.replace(GENERIC_VALUE, crate::getRewardLevelsId))
-            .toMenuItem().setSlots(9).setHandler((viewer1, event) -> {
-                this.dialogs.show(player, CrateDialogs.CRATE_REWARD_LEVELS, crate, flush);
             }).build()
         );
 

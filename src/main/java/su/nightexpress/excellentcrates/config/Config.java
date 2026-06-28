@@ -20,13 +20,11 @@ import static su.nightexpress.excellentcrates.Placeholders.WIKI_PLACEHOLDERS;
 
 public class Config {
 
-    public static final String DIR_CRATES        = "/crates/";
-    public static final String DIR_PREVIEWS      = "/previews/";
-    public static final String DIR_BLACKLIST     = "/blacklist/";
-    public static final String DIR_REWARD_LEVELS = "/reward_levels/";
-    public static final String DIR_KEYS          = "/keys/";
-    public static final String DIR_MENUS         = "/menu/";
-    public static final String DIR_UI            = "/ui/";
+    public static final String DIR_CRATES   = "/crates/";
+    public static final String DIR_PREVIEWS = "/previews/";
+    public static final String DIR_KEYS     = "/keys/";
+    public static final String DIR_MENUS    = "/menu/";
+    public static final String DIR_UI       = "/ui/";
 
     public static final String DIR_OPENINGS             = "/openings/";
     public static final String DIR_OPENINGS_INVENTORY   = DIR_OPENINGS + "inventory/";

@@ -1,12 +1,6 @@
 package su.nightexpress.excellentcrates.data.crate;
 
-import org.jetbrains.annotations.NotNull;
 import su.nightexpress.nightcore.util.TimeUtil;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class UserCrateData {
 
@@ -16,27 +10,16 @@ public class UserCrateData {
     private int  openings;
     private int milestone;
 
-    private final Set<String> blacklistedRewards;
-    private final Map<String, Integer> rewardWins;
-
     public UserCrateData() {
         this(0L, 0, 0, 0);
     }
 
     public UserCrateData(long cooldownTimestamp, int openingStreak, int openings, int milestone) {
-        this(cooldownTimestamp, openingStreak, openings, milestone, new HashSet<>(), new HashMap<>());
-    }
-
-    public UserCrateData(long cooldownTimestamp, int openingStreak, int openings, int milestone,
-                         @NotNull Set<String> blacklistedRewards, @NotNull Map<String, Integer> rewardWins) {
         this.cooldownTimestamp = cooldownTimestamp;
         this.setOpeningStreak(openingStreak);
 
         this.openings = openings;
         this.milestone = milestone;
-
-        this.blacklistedRewards = new HashSet<>(blacklistedRewards);
-        this.rewardWins = new HashMap<>(rewardWins);
     }
 
     public void resetCooldownAndStreak() {
@@ -117,52 +100,5 @@ public class UserCrateData {
 
     public void setMilestone(int milestone) {
         this.milestone = Math.max(0, milestone);
-    }
-
-    @NotNull
-    public Set<String> getBlacklistedRewards() {
-        return this.blacklistedRewards;
-    }
-
-    public boolean isBlacklisted(@NotNull String rewardId) {
-        return this.blacklistedRewards.contains(rewardId.toLowerCase());
-    }
-
-    public void addBlacklist(@NotNull String rewardId) {
-        this.blacklistedRewards.add(rewardId.toLowerCase());
-    }
-
-    public void removeBlacklist(@NotNull String rewardId) {
-        this.blacklistedRewards.remove(rewardId.toLowerCase());
-    }
-
-    public boolean toggleBlacklist(@NotNull String rewardId) {
-        if (this.isBlacklisted(rewardId)) {
-            this.removeBlacklist(rewardId);
-            return false;
-        }
-        this.addBlacklist(rewardId);
-        return true;
-    }
-
-    @NotNull
-    public Map<String, Integer> getRewardWins() {
-        return this.rewardWins;
-    }
-
-    public int getRewardWins(@NotNull String rewardId) {
-        return this.rewardWins.getOrDefault(rewardId.toLowerCase(), 0);
-    }
-
-    public void addRewardWin(@NotNull String rewardId) {
-        this.addRewardWins(rewardId, 1);
-    }
-
-    public void addRewardWins(@NotNull String rewardId, int amount) {
-        this.rewardWins.merge(rewardId.toLowerCase(), Math.max(0, amount), Integer::sum);
-    }
-
-    public void setRewardWins(@NotNull String rewardId, int amount) {
-        this.rewardWins.put(rewardId.toLowerCase(), Math.max(0, amount));
     }
 }

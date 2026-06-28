@@ -86,21 +86,9 @@ public class CommandReward extends AbstractReward {
     public void giveContent(@NotNull Player player) {
         Replacer replacer = this.createContentReplacer(player).replace(Placeholders.forPlayerWithPAPI(player));
 
-        su.nightexpress.excellentcrates.crate.reward.RewardProgression level = this.getEffectiveLevel(player);
-        List<String> contentCommands = (level != null && level.hasCommands()) ? level.getCommands() : this.getCommands();
-
-        contentCommands.forEach(command -> {
+        this.getCommands().forEach(command -> {
             Players.dispatchCommand(player, replacer.apply(command));
         });
-
-        if (level != null && level.hasItems()) {
-            level.getItems().forEach(provider -> {
-                org.bukkit.inventory.ItemStack itemStack = provider.getItemStack();
-                if (itemStack == null) return;
-
-                Players.addItem(player, itemStack);
-            });
-        }
     }
 
     @Override

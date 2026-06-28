@@ -18,9 +18,7 @@ import su.nightexpress.nightcore.util.placeholder.Replacer;
 import su.nightexpress.nightcore.util.problem.ProblemCollector;
 import su.nightexpress.nightcore.util.problem.ProblemReporter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
@@ -38,8 +36,6 @@ public abstract class AbstractReward implements Reward {
     protected Set<String> ignoredPermissions;
     protected Set<String> requiredPermissions;
 
-    protected List<RewardProgression> progressionLevels;
-
     public AbstractReward(@NotNull CratesPlugin plugin, @NotNull Crate crate, @NotNull String id, @NotNull Rarity rarity) {
         this.plugin = plugin;
         this.crate = crate;
@@ -52,7 +48,6 @@ public abstract class AbstractReward implements Reward {
         this.setLimits(LimitValues.unlimited());
         this.setIgnoredPermissions(new HashSet<>());
         this.setRequiredPermissions(new HashSet<>());
-        this.progressionLevels = new ArrayList<>();
     }
 
     @Override
@@ -80,12 +75,6 @@ public abstract class AbstractReward implements Reward {
         this.setIgnoredPermissions(config.getStringSet(path + ".Ignored_For_Permissions"));
         this.setRequiredPermissions(config.getStringSet(path + ".Required_Permissions"));
 
-        List<RewardProgression> levels = new ArrayList<>();
-        config.getSection(path + ".Progression").forEach(sId -> {
-            levels.add(RewardProgression.read(config, path + ".Progression." + sId));
-        });
-        this.setProgressionLevels(levels);
-
         this.loadAdditional(config, path);
     }
 
@@ -99,13 +88,6 @@ public abstract class AbstractReward implements Reward {
         config.set(path + ".Limits", this.limits);
         config.set(path + ".Ignored_For_Permissions", this.ignoredPermissions);
         config.set(path + ".Required_Permissions", this.requiredPermissions);
-
-        config.remove(path + ".Progression");
-        int levelCount = 0;
-        for (RewardProgression level : this.progressionLevels) {
-            level.write(config, path + ".Progression." + levelCount++);
-        }
-
         this.writeAdditional(config, path);
     }
 
@@ -305,51 +287,5 @@ public abstract class AbstractReward implements Reward {
     @Override
     public void setRequiredPermissions(@NotNull Set<String> requiredPermissions) {
         this.requiredPermissions = requiredPermissions;
-    }
-
-    @NotNull
-    public List<RewardProgression> getProgressionLevels() {
-        return this.progressionLevels;
-    }
-
-    public void setProgressionLevels(@NotNull List<RewardProgression> progressionLevels) {
-        this.progressionLevels = new ArrayList<>(progressionLevels);
-        this.progressionLevels.sort(java.util.Comparator.comparingInt(RewardProgression::getRequiredCount));
-    }
-
-    public boolean hasProgression() {
-        return !this.progressionLevels.isEmpty();
-    }
-
-    public void addProgressionLevel(@NotNull RewardProgression level) {
-        this.progressionLevels.add(level);
-        this.progressionLevels.sort(java.util.Comparator.comparingInt(RewardProgression::getRequiredCount));
-    }
-
-    public void removeProgressionLevel(@NotNull RewardProgression level) {
-        this.progressionLevels.remove(level);
-    }
-
-    public int countProgressionLevels() {
-        return this.progressionLevels.size();
-    }
-
-    public int getPlayerWins(@NotNull Player player) {
-        return this.plugin.getUserManager().getOrFetch(player).getCrateData(this.crate).getRewardWins(this.id);
-    }
-
-    @org.jetbrains.annotations.Nullable
-    public RewardProgression getEffectiveLevel(@NotNull Player player) {
-        if (this.progressionLevels.isEmpty()) return null;
-
-        int wins = this.getPlayerWins(player);
-
-        RewardProgression best = null;
-        for (RewardProgression level : this.progressionLevels) {
-            if (level.getRequiredCount() <= wins && (best == null || level.getRequiredCount() >= best.getRequiredCount())) {
-                best = level;
-            }
-        }
-        return best;
     }
 }
