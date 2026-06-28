@@ -26,7 +26,11 @@ import su.nightexpress.excellentcrates.crate.effect.EffectId;
 import su.nightexpress.excellentcrates.crate.impl.*;
 import su.nightexpress.excellentcrates.crate.limit.LimitValues;
 import su.nightexpress.excellentcrates.crate.listener.CrateListener;
+import su.nightexpress.excellentcrates.crate.menu.BlacklistMenu;
 import su.nightexpress.excellentcrates.crate.menu.MilestonesMenu;
+import su.nightexpress.excellentcrates.crate.menu.RewardLevelViewerMenu;
+import su.nightexpress.excellentcrates.crate.menu.RewardLevelsMenu;
+import su.nightexpress.excellentcrates.crate.reward.AbstractReward;
 import su.nightexpress.excellentcrates.crate.menu.OpeningAmountMenu;
 import su.nightexpress.excellentcrates.crate.menu.OpeningCostMenu;
 import su.nightexpress.excellentcrates.crate.menu.PreviewMenu;
@@ -70,11 +74,14 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
     private final Map<String, Crate>       crateByIdMap;
     private final Map<WorldPos, Crate>     crateByPosMap;
     private final Map<String, PreviewMenu> previewByIdMap;
+    private final Map<String, BlacklistMenu>    blacklistByIdMap;
+    private final Map<String, RewardLevelsMenu> rewardLevelsByIdMap;
     private final Map<UUID, Long>          previewCooldown;
 
     private OpeningCostMenu   costMenu;
     private OpeningAmountMenu amountMenu;
     private MilestonesMenu    milestonesMenu;
+    private RewardLevelViewerMenu  rewardLevelViewerMenu;
 
     public CrateManager(@NotNull CratesPlugin plugin, @NotNull DialogRegistry dialogs) {
         super(plugin);
@@ -84,6 +91,8 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
         this.crateByIdMap = new HashMap<>();
         this.crateByPosMap = new HashMap<>();
         this.previewByIdMap = new HashMap<>();
+        this.blacklistByIdMap = new HashMap<>();
+        this.rewardLevelsByIdMap = new HashMap<>();
         this.previewCooldown = new HashMap<>();
     }
 
@@ -93,6 +102,8 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
 
         this.loadRarities();
         this.loadPreviews();
+        this.loadBlacklists();
+        this.loadRewardLevels();
         this.loadCrates();
         this.loadUI();
         this.loadDialogs();
@@ -109,9 +120,14 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
         this.saveCrates();
 
         if (this.milestonesMenu != null) this.milestonesMenu.clear();
+        if (this.rewardLevelViewerMenu != null) this.rewardLevelViewerMenu.clear();
 
         this.previewByIdMap.values().forEach(PreviewMenu::clear);
         this.previewByIdMap.clear();
+        this.blacklistByIdMap.values().forEach(BlacklistMenu::clear);
+        this.blacklistByIdMap.clear();
+        this.rewardLevelsByIdMap.values().forEach(RewardLevelsMenu::clear);
+        this.rewardLevelsByIdMap.clear();
         this.crateByIdMap.clear();
         this.crateByPosMap.clear();
         this.rarityByIdMap.clear();
@@ -178,6 +194,32 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
         }
     }
 
+    private void loadBlacklists() {
+        File dir = new File(plugin.getDataFolder().getAbsolutePath(), Config.DIR_BLACKLIST);
+        if (!dir.exists() && dir.mkdirs()) {
+            new BlacklistMenu(plugin, FileConfig.loadOrExtract(plugin, Config.DIR_BLACKLIST, Placeholders.DEFAULT + ".yml"));
+        }
+
+        for (FileConfig config : FileConfig.loadAll(plugin.getDataFolder() + Config.DIR_BLACKLIST, false)) {
+            BlacklistMenu menu = new BlacklistMenu(plugin, config);
+            String id = config.getFile().getName().replace(".yml", "").toLowerCase();
+            this.blacklistByIdMap.put(id, menu);
+        }
+    }
+
+    private void loadRewardLevels() {
+        File dir = new File(plugin.getDataFolder().getAbsolutePath(), Config.DIR_REWARD_LEVELS);
+        if (!dir.exists() && dir.mkdirs()) {
+            new RewardLevelsMenu(plugin, FileConfig.loadOrExtract(plugin, Config.DIR_REWARD_LEVELS, Placeholders.DEFAULT + ".yml"));
+        }
+
+        for (FileConfig config : FileConfig.loadAll(plugin.getDataFolder() + Config.DIR_REWARD_LEVELS, false)) {
+            RewardLevelsMenu menu = new RewardLevelsMenu(plugin, config);
+            String id = config.getFile().getName().replace(".yml", "").toLowerCase();
+            this.rewardLevelsByIdMap.put(id, menu);
+        }
+    }
+
     private void loadUI() {
         this.costMenu = this.addMenu(new OpeningCostMenu(this.plugin, this), Config.DIR_UI, "crate_open_costs.yml");
         this.amountMenu = this.addMenu(new OpeningAmountMenu(this.plugin, this), Config.DIR_UI, "crate_open_amount.yml");
@@ -185,6 +227,8 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
         if (Config.isMilestonesEnabled()) {
             this.milestonesMenu = new MilestonesMenu(this.plugin);
         }
+
+        this.rewardLevelViewerMenu = new RewardLevelViewerMenu(this.plugin);
     }
 
     private void loadCrates() {
@@ -215,6 +259,8 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
         this.dialogs.register(CrateDialogs.CRATE_DESCRIPTION, CrateDescriptionDialog::new);
         this.dialogs.register(CrateDialogs.CRATE_ITEM, CrateItemDialog::new);
         this.dialogs.register(CrateDialogs.CRATE_PREVIEW, () -> new CratePreviewDialog(this.plugin));
+        this.dialogs.register(CrateDialogs.CRATE_BLACKLIST, () -> new CrateBlacklistDialog(this.plugin));
+        this.dialogs.register(CrateDialogs.CRATE_REWARD_LEVELS, () -> new CrateRewardLevelsDialog(this.plugin));
         this.dialogs.register(CrateDialogs.CRATE_OPENING, () -> new CrateOpeningDialog(this.plugin));
         this.dialogs.register(CrateDialogs.CRATE_OPENING_LIMITS, CrateOpeningLimitsDialog::new);
         this.dialogs.register(CrateDialogs.CRATE_EFFECT, () -> new CrateEffectDialog(this.dialogs));
@@ -232,6 +278,9 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
         this.dialogs.register(RewardDialogs.WEIGHT, () -> new RewardWeightDialog(this.plugin));
         this.dialogs.register(RewardDialogs.PERMISSIONS, RewardPermissionsDialog::new);
         this.dialogs.register(RewardDialogs.LIMITS, RewardLimitsDialog::new);
+        this.dialogs.register(RewardDialogs.PROGRESSION_COUNT, RewardProgressionCountDialog::new);
+        this.dialogs.register(RewardDialogs.PROGRESSION_NAME, RewardProgressionNameDialog::new);
+        this.dialogs.register(RewardDialogs.PROGRESSION_COMMANDS, RewardProgressionCommandsDialog::new);
 
         this.dialogs.register(CostDialogs.CREATION, CostCreationDialog::new);
         this.dialogs.register(CostDialogs.NAME, CostNameDialog::new);
@@ -302,6 +351,48 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
     public void openMilestones(@NotNull Player player, @NotNull CrateSource source) {
         if (this.milestonesMenu != null) {
             this.milestonesMenu.open(player, source);
+        }
+    }
+
+    @Nullable
+    public BlacklistMenu getBlacklistById(@NotNull String id) {
+        return this.blacklistByIdMap.get(id.toLowerCase());
+    }
+
+    @NotNull
+    public List<String> getBlacklistNames() {
+        return new ArrayList<>(this.blacklistByIdMap.keySet());
+    }
+
+    @Nullable
+    public RewardLevelsMenu getRewardLevelsById(@NotNull String id) {
+        return this.rewardLevelsByIdMap.get(id.toLowerCase());
+    }
+
+    @NotNull
+    public List<String> getRewardLevelsNames() {
+        return new ArrayList<>(this.rewardLevelsByIdMap.keySet());
+    }
+
+    public void openBlacklist(@NotNull Player player, @NotNull CrateSource source) {
+        BlacklistMenu menu = this.getBlacklistById(source.getCrate().getBlacklistId());
+        if (menu == null) menu = this.getBlacklistById(Placeholders.DEFAULT);
+        if (menu == null) return;
+
+        menu.open(player, source);
+    }
+
+    public void openRewardLevels(@NotNull Player player, @NotNull CrateSource source) {
+        RewardLevelsMenu menu = this.getRewardLevelsById(source.getCrate().getRewardLevelsId());
+        if (menu == null) menu = this.getRewardLevelsById(Placeholders.DEFAULT);
+        if (menu == null) return;
+
+        menu.open(player, source);
+    }
+
+    public void openRewardLevelViewer(@NotNull Player player, @NotNull CrateSource source, @NotNull AbstractReward reward, int index) {
+        if (this.rewardLevelViewerMenu != null) {
+            this.rewardLevelViewerMenu.open(player, new RewardLevelViewerMenu.Data(source, reward, index));
         }
     }
 
@@ -658,6 +749,9 @@ public class CrateManager extends AbstractManager<CratesPlugin> {
         reward.giveContent(player);
 
         Crate crate = reward.getCrate();
+
+        this.plugin.getUserManager().getOrFetch(player).getCrateData(crate).addRewardWin(reward.getId());
+
         GlobalCrateData globalData = this.plugin.getDataManager().getCrateDataOrCreate(crate);
 
         globalData.setLatestReward(reward);

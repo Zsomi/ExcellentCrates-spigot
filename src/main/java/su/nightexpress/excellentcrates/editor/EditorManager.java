@@ -6,6 +6,9 @@ import su.nightexpress.excellentcrates.CratesPlugin;
 import su.nightexpress.excellentcrates.api.crate.Reward;
 import su.nightexpress.excellentcrates.crate.cost.Cost;
 import su.nightexpress.excellentcrates.crate.impl.Crate;
+import su.nightexpress.excellentcrates.crate.reward.AbstractReward;
+import su.nightexpress.excellentcrates.crate.reward.ProgressionRef;
+import su.nightexpress.excellentcrates.crate.reward.RewardProgression;
 import su.nightexpress.excellentcrates.crate.reward.impl.ItemReward;
 import su.nightexpress.excellentcrates.dialog.DialogRegistry;
 import su.nightexpress.excellentcrates.editor.crate.*;
@@ -28,6 +31,8 @@ public class EditorManager extends AbstractManager<CratesPlugin> {
     private RewardListMenu      rewardListMenu;
     private RewardOptionsMenu   rewardOptionsMenu;
     private RewardContentMenu rewardContentMenu;
+    private RewardProgressionListMenu    rewardProgressionListMenu;
+    private RewardProgressionContentMenu rewardProgressionContentMenu;
 
     private KeyListMenu    keyListMenu;
     private KeyOptionsMenu keyOptionsMenu;
@@ -49,6 +54,8 @@ public class EditorManager extends AbstractManager<CratesPlugin> {
         this.rewardListMenu = new RewardListMenu(this.plugin, this.dialogs);
         this.rewardOptionsMenu = new RewardOptionsMenu(this.plugin, this.dialogs);
         this.rewardContentMenu = new RewardContentMenu(this.plugin, this.dialogs);
+        this.rewardProgressionListMenu = new RewardProgressionListMenu(this.plugin);
+        this.rewardProgressionContentMenu = new RewardProgressionContentMenu(this.plugin, this.dialogs);
 
         this.keyListMenu = new KeyListMenu(this.plugin, this.dialogs);
         this.keyOptionsMenu = new KeyOptionsMenu(this.plugin, this.dialogs);
@@ -64,6 +71,8 @@ public class EditorManager extends AbstractManager<CratesPlugin> {
         if (this.rewardListMenu != null) this.rewardListMenu.clear();
         if (this.rewardOptionsMenu != null) this.rewardOptionsMenu.clear();
         if (this.rewardContentMenu != null) this.rewardContentMenu.clear();
+        if (this.rewardProgressionListMenu != null) this.rewardProgressionListMenu.clear();
+        if (this.rewardProgressionContentMenu != null) this.rewardProgressionContentMenu.clear();
 
         if (this.keyListMenu != null) this.keyListMenu.clear();
         if (this.keyOptionsMenu != null) this.keyOptionsMenu.clear();
@@ -107,6 +116,14 @@ public class EditorManager extends AbstractManager<CratesPlugin> {
 
     public void openRewardOptions(@NotNull Player player, @NotNull Reward reward) {
         this.rewardOptionsMenu.open(player, reward);
+    }
+
+    public void openRewardProgression(@NotNull Player player, @NotNull AbstractReward reward) {
+        this.rewardProgressionListMenu.open(player, reward);
+    }
+
+    public void openRewardProgressionContent(@NotNull Player player, @NotNull AbstractReward reward, @NotNull RewardProgression level) {
+        this.rewardProgressionContentMenu.open(player, new ProgressionRef(reward, level));
     }
 
 

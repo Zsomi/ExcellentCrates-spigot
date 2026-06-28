@@ -10,6 +10,7 @@ import su.nightexpress.excellentcrates.CratesPlugin;
 import su.nightexpress.excellentcrates.api.crate.Reward;
 import su.nightexpress.excellentcrates.crate.impl.Crate;
 import su.nightexpress.excellentcrates.crate.impl.CrateSource;
+import su.nightexpress.excellentcrates.crate.reward.AbstractReward;
 import su.nightexpress.excellentcrates.util.InteractType;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
@@ -179,6 +180,41 @@ public class PreviewMenu extends LinkedMenu<CratesPlugin, CrateSource> implement
             .setHandler(new ItemHandler("milestones", (viewer, event) -> {
                 this.runNextTick(() -> plugin.getCrateManager().openMilestones(viewer.getPlayer(), this.getLink(viewer)));
             }, ItemOptions.builder().setVisibilityPolicy(viewer -> this.getLink(viewer).getCrate().hasMilestones()).build()))
+        );
+
+        loader.addDefaultItem(NightItem.fromType(Material.BARRIER)
+            .setDisplayName(RED.wrap(BOLD.wrap("Reward Blacklist")))
+            .setLore(Lists.newList(
+                GRAY.wrap("Choose which rewards you"),
+                GRAY.wrap("never want to receive."),
+                "",
+                YELLOW.wrap("→ Click to open")
+            ))
+            .toMenuItem()
+            .setPriority(10)
+            .setSlots(8)
+            .setHandler(new ItemHandler("blacklist", (viewer, event) -> {
+                this.runNextTick(() -> plugin.getCrateManager().openBlacklist(viewer.getPlayer(), this.getLink(viewer)));
+            }))
+        );
+
+        loader.addDefaultItem(NightItem.fromType(Material.EXPERIENCE_BOTTLE)
+            .setDisplayName(GREEN.wrap(BOLD.wrap("Reward Levels")))
+            .setLore(Lists.newList(
+                GRAY.wrap("View reward progression levels"),
+                GRAY.wrap("and your progress towards them."),
+                "",
+                YELLOW.wrap("→ Click to open")
+            ))
+            .toMenuItem()
+            .setPriority(10)
+            .setSlots(7)
+            .setHandler(new ItemHandler("reward_levels", (viewer, event) -> {
+                this.runNextTick(() -> plugin.getCrateManager().openRewardLevels(viewer.getPlayer(), this.getLink(viewer)));
+            }, ItemOptions.builder().setVisibilityPolicy(viewer ->
+                this.getLink(viewer).getCrate().getRewards().stream()
+                    .anyMatch(reward -> reward instanceof AbstractReward ar && ar.hasProgression())
+            ).build()))
         );
 
         loader.addDefaultItem(MenuItem.buildExit(this, 40).setPriority(10));
