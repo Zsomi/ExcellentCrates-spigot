@@ -75,6 +75,8 @@ public class Crate implements ConfigBacked {
 
     private boolean previewEnabled;
     private String  previewId;
+    private String  blacklistId;
+    private String  rewardLevelsId;
     private boolean openingEnabled;
     private String  openingId;
 
@@ -170,6 +172,8 @@ public class Crate implements ConfigBacked {
 
         this.setPreviewEnabled(config.getBoolean("Preview.Enabled"));
         this.setPreviewId(config.getString("Preview.Id", Placeholders.DEFAULT));
+        this.setBlacklistId(config.getString("Blacklist.Id", Placeholders.DEFAULT));
+        this.setRewardLevelsId(config.getString("Reward_Levels.Id", Placeholders.DEFAULT));
         this.setOpeningEnabled(config.getBoolean("Animation.Enabled"));
         this.setOpeningId(config.getString("Animation.Id", Placeholders.DEFAULT));
 
@@ -279,6 +283,8 @@ public class Crate implements ConfigBacked {
 
         config.set("Preview.Enabled", this.previewEnabled);
         config.set("Preview.Id", this.previewId);
+        config.set("Blacklist.Id", this.blacklistId);
+        config.set("Reward_Levels.Id", this.rewardLevelsId);
         config.set("Animation.Enabled", this.openingEnabled);
         config.set("Animation.Id", this.openingId);
 
@@ -492,6 +498,15 @@ public class Crate implements ConfigBacked {
     public Reward rollReward(@Nullable Player player, @Nullable Rarity rarity) {
         List<Reward> rewards = this.getRewards(player, rarity);
 
+        if (player != null) {
+            Set<String> blacklist = this.plugin.getUserManager().getOrFetch(player).getCrateData(this).getBlacklistedRewards();
+            if (!blacklist.isEmpty()) {
+                List<Reward> filtered = new ArrayList<>(rewards);
+                filtered.removeIf(reward -> blacklist.contains(reward.getId()));
+                if (!filtered.isEmpty()) rewards = filtered;
+            }
+        }
+
         // If no rarity is specified, we have to select a random one and filter rewards by selected rarity.
         // Otherwise reward list is already obtained with specified rarity.
         if (rarity == null) {
@@ -629,6 +644,24 @@ public class Crate implements ConfigBacked {
 
     public void setPreviewId(@NotNull String previewId) {
         this.previewId = previewId.toLowerCase();
+    }
+
+    @NotNull
+    public String getBlacklistId() {
+        return this.blacklistId;
+    }
+
+    public void setBlacklistId(@NotNull String blacklistId) {
+        this.blacklistId = blacklistId.toLowerCase();
+    }
+
+    @NotNull
+    public String getRewardLevelsId() {
+        return this.rewardLevelsId;
+    }
+
+    public void setRewardLevelsId(@NotNull String rewardLevelsId) {
+        this.rewardLevelsId = rewardLevelsId.toLowerCase();
     }
 
     public boolean isPreviewEnabled() {

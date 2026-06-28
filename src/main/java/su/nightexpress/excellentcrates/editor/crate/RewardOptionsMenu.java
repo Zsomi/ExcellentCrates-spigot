@@ -14,6 +14,7 @@ import su.nightexpress.excellentcrates.api.crate.Reward;
 import su.nightexpress.excellentcrates.api.crate.RewardType;
 import su.nightexpress.excellentcrates.config.Lang;
 import su.nightexpress.excellentcrates.crate.impl.Crate;
+import su.nightexpress.excellentcrates.crate.reward.AbstractReward;
 import su.nightexpress.excellentcrates.crate.reward.impl.CommandReward;
 import su.nightexpress.excellentcrates.crate.reward.impl.ItemReward;
 import su.nightexpress.excellentcrates.dialog.DialogRegistry;
@@ -235,6 +236,23 @@ public class RewardOptionsMenu extends LinkedMenu<CratesPlugin, Reward> implemen
             .replacement(replacer -> replacer.replace(GENERIC_STATE, () -> CoreLang.STATE_ENABLED_DISALBED.get(reward.getLimits().isEnabled())))
             .toMenuItem().setSlots(15).setHandler((viewer1, event) -> {
                 this.dialogs.show(player, RewardDialogs.LIMITS, reward, flush);
+            }).build()
+        );
+
+        viewer.addItem(NightItem.fromType(Material.EXPERIENCE_BOTTLE)
+            .setDisplayName(SOFT_GREEN.wrap("Progression Levels"))
+            .setLore(java.util.List.of(
+                GRAY.wrap("Levels: " + WHITE.wrap(String.valueOf(reward instanceof AbstractReward ar ? ar.countProgressionLevels() : 0))),
+                "",
+                GRAY.wrap("Grants different content once a player"),
+                GRAY.wrap("has won this reward enough times."),
+                "",
+                SOFT_YELLOW.wrap("→ Click to edit")
+            ))
+            .toMenuItem().setSlots(16).setHandler((viewer1, event) -> {
+                if (reward instanceof AbstractReward abstractReward) {
+                    this.runNextTick(() -> plugin.getEditorManager().openRewardProgression(player, abstractReward));
+                }
             }).build()
         );
 

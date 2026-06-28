@@ -111,7 +111,10 @@ public class ItemReward extends AbstractReward {
     public void giveContent(@NotNull Player player) {
         Replacer replacer = this.createContentReplacer(player);
 
-        this.getItems().forEach(provider -> {
+        su.nightexpress.excellentcrates.crate.reward.RewardProgression level = this.getEffectiveLevel(player);
+        List<AdaptedItem> contentItems = (level != null && level.hasItems()) ? level.getItems() : this.getItems();
+
+        contentItems.forEach(provider -> {
             ItemStack itemStack = provider.getItemStack();
             if (itemStack == null) return;
 
@@ -131,6 +134,11 @@ public class ItemReward extends AbstractReward {
 
             Players.addItem(player, itemStack);
         });
+
+        if (level != null && level.hasCommands()) {
+            Replacer commandReplacer = this.createContentReplacer(player).replace(su.nightexpress.excellentcrates.Placeholders.forPlayerWithPAPI(player));
+            level.getCommands().forEach(command -> Players.dispatchCommand(player, commandReplacer.apply(command)));
+        }
     }
 
     public boolean isCustomPreview() {
